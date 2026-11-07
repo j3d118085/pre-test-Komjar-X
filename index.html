@@ -1,0 +1,834 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pre-test Komjar X TKJ</title>
+
+<style>
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f2efff;
+  color: #292344;
+}
+
+header {
+  background: #6041a6;
+  color: white;
+  padding: 22px 15px;
+  text-align: center;
+}
+
+header h2 { margin: 0 0 7px; }
+
+.container {
+  max-width: 700px;
+  margin: 20px auto;
+  padding: 15px;
+}
+
+.card {
+  background: white;
+  padding: 20px;
+  border-radius: 14px;
+  box-shadow: 0 3px 12px #00000012;
+  margin-bottom: 15px;
+}
+
+input, select {
+  width: 100%;
+  padding: 12px;
+  margin: 7px 0 15px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 15px;
+}
+
+button {
+  border: none;
+  padding: 12px 17px;
+  border-radius: 8px;
+  background: #6041a6;
+  color: white;
+  font-size: 15px;
+  cursor: pointer;
+  margin: 4px 2px;
+}
+
+button:disabled {
+  background: #aaa;
+}
+
+.secondary { background: #777; }
+.danger { background: #c0392b; }
+.success { background: #218c5a; }
+
+.question {
+  font-weight: bold;
+  font-size: 17px;
+  line-height: 1.5;
+  margin-bottom: 15px;
+}
+
+.option {
+  display: block;
+  padding: 12px;
+  margin: 9px 0;
+  border: 1px solid #ddd;
+  border-radius: 9px;
+  cursor: pointer;
+}
+
+.option:has(input:checked) {
+  background: #eee8ff;
+  border-color: #6041a6;
+}
+
+.option input {
+  width: auto;
+  margin: 0 8px 0 0;
+}
+
+.timer {
+  position: sticky;
+  top: 5px;
+  background: #fff0d8;
+  padding: 12px;
+  border-radius: 9px;
+  text-align: center;
+  font-weight: bold;
+  z-index: 5;
+}
+
+.hidden { display: none; }
+
+.status {
+  padding: 12px;
+  border-radius: 8px;
+  margin: 12px 0;
+  background: #f0eaff;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+th, td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+th { background: #eee8ff; }
+
+.table-wrap { overflow-x: auto; }
+
+.small {
+  font-size: 13px;
+  color: #666;
+}
+
+footer {
+  text-align: center;
+  padding: 20px;
+  color: #777;
+  font-size: 12px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h2>PRE-TEST KOMJAR</h2>
+  <div>Kelas X Teknik Komputer dan Jaringan</div>
+  <small>SMK Bintang Harapan</small>
+</header>
+
+<div class="container">
+
+<!-- HALAMAN AWAL -->
+<section id="home" class="card">
+  <h3>Identitas Peserta</h3>
+
+  <label>Nama lengkap</label>
+  <input id="nama" placeholder="Masukkan nama lengkap">
+
+  <label>Kelas</label>
+  <select id="kelas">
+    <option value="">Pilih kelas</option>
+    <option>X TKJ 1</option>
+    <option>X TKJ 2</option>
+    <option>X TKJ 3</option>
+  </select>
+
+  <label>Nomor absen</label>
+  <input id="absen" type="number" min="1" placeholder="Nomor absen">
+
+  <div class="status">
+    <b>Petunjuk pengerjaan</b>
+    <ul>
+      <li>Jumlah soal: 30 pilihan ganda.</li>
+      <li>Waktu pengerjaan: 30 menit.</li>
+      <li>Soal dan pilihan jawaban diacak.</li>
+      <li>Jangan berpindah tab atau aplikasi selama ujian.</li>
+      <li>Jika berpindah tab, sistem mencatat pelanggaran.</li>
+      <li>Nilai akan muncul setelah ujian dikumpulkan.</li>
+    </ul>
+  </div>
+
+  <button onclick="mulaiUjian()">Mulai Ujian</button>
+  <button class="secondary" onclick="bukaGuru()">Dashboard Guru</button>
+</section>
+
+<!-- HALAMAN UJIAN -->
+<section id="exam" class="hidden">
+  <div class="timer">
+    Sisa waktu: <span id="timer">30:00</span>
+  </div>
+
+  <div class="card">
+    <div id="identitasUjian"></div>
+    <div id="progress" class="small"></div>
+  </div>
+
+  <div id="questionArea" class="card"></div>
+
+  <div class="card">
+    <button class="secondary" onclick="sebelumnya()">Sebelumnya</button>
+    <button onclick="selanjutnya()">Selanjutnya</button>
+    <button class="success" onclick="konfirmasiKumpul()">Kumpulkan Ujian</button>
+  </div>
+</section>
+
+<!-- HALAMAN HASIL -->
+<section id="result" class="card hidden">
+  <h2>Hasil Ujian</h2>
+  <div id="hasil"></div>
+  <button onclick="kembaliAwal()">Kembali ke Beranda</button>
+</section>
+
+<!-- DASHBOARD GURU -->
+<section id="teacher" class="hidden">
+  <div class="card">
+    <h2>Dashboard Guru</h2>
+    <p class="small">Rekap hasil pre-test Komjar kelas X TKJ.</p>
+    <div id="statistik"></div>
+  </div>
+
+  <div class="card">
+    <h3>Data Hasil Siswa</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>No.</th>
+            <th>Nama</th>
+            <th>Kelas</th>
+            <th>Absen</th>
+            <th>Nilai</th>
+            <th>Status</th>
+            <th>Pelanggaran</th>
+          </tr>
+        </thead>
+        <tbody id="tabelHasil"></tbody>
+      </table>
+    </div>
+
+    <button onclick="eksporCSV()">Unduh Rekap CSV</button>
+    <button class="danger" onclick="hapusData()">Hapus Semua Data</button>
+    <button class="secondary" onclick="kembaliAwal()">Kembali</button>
+  </div>
+</section>
+
+</div>
+
+<footer>
+  Pre-test Komjar | Teknik Komputer dan Jaringan
+</footer>
+
+<script>
+const PIN_GURU = "112233";
+const DURASI = 30 * 60;
+
+const soal = [
+{
+id:1, topik:"Proses Bisnis Jaringan",
+q:"Apa yang dimaksud dengan proses bisnis?",
+o:[
+"Kegiatan untuk menghasilkan barang atau jasa",
+"Kegiatan bermain komputer",
+"Kegiatan menghapus data",
+"Kegiatan memperbaiki monitor saja"
+],a:0
+},
+{
+id:2,topik:"Proses Bisnis Jaringan",
+q:"Tujuan utama proses bisnis dalam bidang jaringan komputer adalah ...",
+o:[
+"Memperbanyak perangkat",
+"Memberikan layanan jaringan sesuai kebutuhan pengguna",
+"Mengurangi penggunaan internet",
+"Menghapus seluruh data"
+],a:1
+},
+{
+id:3,topik:"Proses Bisnis Jaringan",
+q:"Contoh usaha di bidang jaringan komputer adalah ...",
+o:[
+"Jasa instalasi dan konfigurasi jaringan",
+"Jasa menjahit pakaian",
+"Penjualan sayuran",
+"Pembuatan kue"
+],a:0
+},
+{
+id:4,topik:"Proses Bisnis Jaringan",
+q:"Orang yang membutuhkan layanan jaringan disebut ...",
+o:["Pesaing","Pelanggan","Produsen","Teknisi"],a:1
+},
+{
+id:5,topik:"Proses Bisnis Jaringan",
+q:"Salah satu tahap awal membangun usaha jaringan adalah ...",
+o:[
+"Mengabaikan pelanggan",
+"Melakukan analisis kebutuhan pasar",
+"Membeli perangkat tanpa rencana",
+"Menutup layanan"
+],a:1
+},
+{
+id:6,topik:"Proses Bisnis Jaringan",
+q:"SOP merupakan singkatan dari ...",
+o:[
+"System Operation Program",
+"Standard Operating Procedure",
+"Service Online Provider",
+"Software Operating Process"
+],a:1
+},
+{
+id:7,topik:"Proses Bisnis Jaringan",
+q:"Contoh layanan purna jual adalah ...",
+o:[
+"Memberikan dukungan setelah pemasangan",
+"Menghentikan komunikasi",
+"Menghapus data pelanggan",
+"Menolak keluhan"
+],a:0
+},
+{
+id:8,topik:"Proses Bisnis Jaringan",
+q:"Sebelum membangun jaringan, hal yang perlu dianalisis adalah ...",
+o:[
+"Warna dinding",
+"Jumlah pengguna dan kebutuhan jaringan",
+"Merek meja",
+"Jenis pakaian"
+],a:1
+},
+{
+id:9,topik:"Komponen Komputer",
+q:"Komponen yang berfungsi sebagai pusat pemrosesan data adalah ...",
+o:["Monitor","Processor","Keyboard","Speaker"],a:1
+},
+{
+id:10,topik:"Komponen Komputer",
+q:"RAM berfungsi untuk ...",
+o:[
+"Menyimpan data sementara",
+"Mencetak dokumen",
+"Menampilkan gambar",
+"Menghubungkan listrik"
+],a:0
+},
+{
+id:11,topik:"Komponen Komputer",
+q:"Perangkat untuk menampilkan hasil pengolahan komputer adalah ...",
+o:["Keyboard","Mouse","Monitor","Scanner"],a:2
+},
+{
+id:12,topik:"Komponen Komputer",
+q:"Perangkat yang digunakan untuk menyimpan data secara permanen adalah ...",
+o:["RAM","SSD","Cache","Register"],a:1
+},
+{
+id:13,topik:"Komponen Komputer",
+q:"Motherboard berfungsi sebagai ...",
+o:[
+"Tempat menghubungkan komponen komputer",
+"Alat mencetak dokumen",
+"Alat menampilkan suara",
+"Alat menggerakkan kursor"
+],a:0
+},
+{
+id:14,topik:"Komponen Komputer",
+q:"Berikut yang termasuk perangkat input adalah ...",
+o:["Monitor","Speaker","Keyboard","Printer"],a:2
+},
+{
+id:15,topik:"Komponen Komputer",
+q:"Power Supply Unit (PSU) berfungsi untuk ...",
+o:[
+"Mengolah data",
+"Menyuplai daya listrik ke komponen komputer",
+"Menyimpan file",
+"Menampilkan gambar"
+],a:1
+},
+{
+id:16,topik:"Komponen Komputer",
+q:"Perangkat yang digunakan untuk mengolah grafis adalah ...",
+o:["GPU","RAM","PSU","HDD"],a:0
+},
+{
+id:17,topik:"Perkembangan Teknologi Komputer",
+q:"Komputer generasi pertama menggunakan teknologi ...",
+o:["Transistor","Tabung vakum","IC","Mikroprosesor"],a:1
+},
+{
+id:18,topik:"Perkembangan Teknologi Komputer",
+q:"Komputer generasi kedua menggunakan ...",
+o:["Tabung vakum","Transistor","IC","Kecerdasan buatan"],a:1
+},
+{
+id:19,topik:"Perkembangan Teknologi Komputer",
+q:"Komputer generasi ketiga menggunakan teknologi ...",
+o:["Integrated Circuit","Tabung vakum","Relay","Pita magnetik"],a:0
+},
+{
+id:20,topik:"Perkembangan Teknologi Komputer",
+q:"Komputer generasi keempat ditandai dengan penggunaan ...",
+o:["Tabung vakum","Transistor","Mikroprosesor","Relay"],a:2
+},
+{
+id:21,topik:"Perkembangan Teknologi Komputer",
+q:"Salah satu ciri perkembangan komputer modern adalah ...",
+o:[
+"Ukuran semakin besar",
+"Kecepatan dan kemampuan semakin meningkat",
+"Hanya dapat digunakan untuk mengetik",
+"Tidak dapat terhubung internet"
+],a:1
+},
+{
+id:22,topik:"Perkembangan Teknologi Komputer",
+q:"Teknologi yang memungkinkan komputer mempelajari pola data disebut ...",
+o:["AI","VGA","USB","BIOS"],a:0
+},
+{
+id:23,topik:"Perkembangan Teknologi Komputer",
+q:"Komputasi awan atau cloud computing memungkinkan pengguna untuk ...",
+o:[
+"Mengakses layanan komputasi melalui internet",
+"Menggunakan komputer tanpa listrik",
+"Menghilangkan semua perangkat keras",
+"Mencetak tanpa printer"
+],a:0
+},
+{
+id:24,topik:"Perkembangan Teknologi Komputer",
+q:"Contoh perangkat komputer portabel adalah ...",
+o:["Server rack","Laptop","Mainframe","Komputer desktop saja"],a:1
+},
+{
+id:25,topik:"BIOS",
+q:"BIOS merupakan singkatan dari ...",
+o:[
+"Basic Input Output System",
+"Binary Internet Operating Service",
+"Basic Internal Online Software",
+"Boot Input Operating Setup"
+],a:0
+},
+{
+id:26,topik:"BIOS",
+q:"Fungsi utama BIOS adalah ...",
+o:[
+"Mengedit video",
+"Melakukan inisialisasi perangkat keras saat komputer dinyalakan",
+"Mencetak dokumen",
+"Menghapus virus secara otomatis"
+],a:1
+},
+{
+id:27,topik:"BIOS",
+q:"BIOS dijalankan ketika ...",
+o:[
+"Komputer pertama kali dinyalakan",
+"Komputer dimatikan",
+"Pengguna membuka browser saja",
+"Printer kehabisan tinta"
+],a:0
+},
+{
+id:28,topik:"BIOS",
+q:"POST pada proses booting merupakan singkatan dari ...",
+o:[
+"Power On Self Test",
+"Program Operating System Tool",
+"Personal Online System Test",
+"Power Output System Technology"
+],a:0
+},
+{
+id:29,topik:"BIOS",
+q:"Pengaturan urutan perangkat untuk booting biasanya dilakukan melalui ...",
+o:[
+"BIOS/UEFI",
+"Microsoft Word",
+"Paint",
+"Calculator"
+],a:0
+},
+{
+id:30,topik:"BIOS",
+q:"Perbedaan UEFI dengan BIOS lama salah satunya adalah ...",
+o:[
+"UEFI merupakan firmware modern dengan fitur lebih lengkap",
+"UEFI adalah perangkat input",
+"UEFI adalah jenis monitor",
+"UEFI tidak berhubungan dengan proses booting"
+],a:0
+}
+];
+
+let daftarSoal = [];
+let jawaban = {};
+let posisi = 0;
+let waktu = DURASI;
+let interval = null;
+let pelanggaran = 0;
+let diskualifikasi = false;
+let identitas = {};
+let sudahKumpul = false;
+let pindahSaatHidden = false;
+
+function acak(arr) {
+  let hasil = [...arr];
+  for (let i = hasil.length - 1; i > 0; i--) {
+    let j = Math.floor(Math.random() * (i + 1));
+    [hasil[i], hasil[j]] = [hasil[j], hasil[i]];
+  }
+  return hasil;
+}
+
+function tampil(id) {
+  ["home","exam","result","teacher"].forEach(x => {
+    document.getElementById(x).classList.add("hidden");
+  });
+  document.getElementById(id).classList.remove("hidden");
+}
+
+function mulaiUjian() {
+  const nama = document.getElementById("nama").value.trim();
+  const kelas = document.getElementById("kelas").value;
+  const absen = document.getElementById("absen").value.trim();
+
+  if (!nama || !kelas || !absen || Number(absen) < 1) {
+    alert("Lengkapi nama, kelas, dan nomor absen terlebih dahulu.");
+    return;
+  }
+
+
+  identitas = {nama,kelas,absen};
+  daftarSoal = acak(soal).map(s => ({
+    ...s,
+    pilihan: acak(s.o.map((text,index)=>({
+      text,
+      originalIndex:index
+    })))
+  }));
+
+  jawaban = {};
+  posisi = 0;
+  waktu = DURASI;
+  pelanggaran = 0;
+  diskualifikasi = false;
+  sudahKumpul = false;
+
+  document.getElementById("identitasUjian").innerHTML =
+    "<b>"+aman(nama)+"</b> | "+aman(kelas)+" | Absen "+aman(absen);
+
+  tampil("exam");
+  renderSoal();
+  mulaiTimer();
+}
+
+function renderSoal() {
+  const s = daftarSoal[posisi];
+
+  document.getElementById("progress").textContent =
+    "Soal "+(posisi+1)+" dari "+daftarSoal.length+
+    " | Terjawab "+Object.keys(jawaban).length+" soal";
+
+  let html = `
+    <div class="question">${posisi+1}. ${aman(s.q)}</div>
+  `;
+
+  s.pilihan.forEach((p,i)=>{
+    const checked = jawaban[s.id] === p.originalIndex ? "checked" : "";
+    html += `
+      <label class="option">
+        <input type="radio" name="pilihan"
+          value="${p.originalIndex}" ${checked}
+          onchange="simpanJawaban(${s.id},${p.originalIndex})">
+        ${String.fromCharCode(65+i)}. ${aman(p.text)}
+      </label>
+    `;
+  });
+
+  document.getElementById("questionArea").innerHTML = html;
+}
+
+function aman(teks) {
+  return String(teks).replace(/[&<>"']/g, c => ({
+    "&":"&amp;",
+    "<":"&lt;",
+    ">":"&gt;",
+    '"':"&quot;",
+    "'":"&#39;"
+  })[c]);
+}
+
+function simpanJawaban(id,nilai) {
+  jawaban[id] = nilai;
+  document.getElementById("progress").textContent =
+    "Soal "+(posisi+1)+" dari "+daftarSoal.length+
+    " | Terjawab "+Object.keys(jawaban).length+" soal";
+}
+
+function sebelumnya() {
+  if (posisi > 0) {
+    posisi--;
+    renderSoal();
+  }
+}
+
+function selanjutnya() {
+  if (posisi < daftarSoal.length-1) {
+    posisi++;
+    renderSoal();
+  }
+}
+
+function mulaiTimer() {
+  clearInterval(interval);
+  perbaruiTimer();
+
+  interval = setInterval(()=>{
+    waktu--;
+    perbaruiTimer();
+
+    if (waktu <= 0) {
+      clearInterval(interval);
+      alert("Waktu ujian telah habis. Jawaban dikumpulkan otomatis.");
+      kumpulkan(true);
+    }
+  },1000);
+}
+
+function perbaruiTimer() {
+  const menit = Math.floor(waktu/60);
+  const detik = waktu%60;
+
+  document.getElementById("timer").textContent =
+    String(menit).padStart(2,"0")+":"+
+    String(detik).padStart(2,"0");
+}
+
+// Deteksi perpindahan tab/aplikasi
+document.addEventListener("visibilitychange",()=>{
+  if (!document.hidden || sudahKumpul ||
+      document.getElementById("exam").classList.contains("hidden")) return;
+
+  pelanggaran++;
+  diskualifikasi = true;
+  pindahSaatHidden = true;
+});
+
+// Pemberitahuan setelah siswa kembali
+window.addEventListener("focus",()=>{
+  if (pindahSaatHidden && !sudahKumpul) {
+    pindahSaatHidden = false;
+    alert("Peringatan: perpindahan tab/aplikasi terdeteksi. Status ujian akan menjadi DISKUALIFIKASI.");
+  }
+});
+
+ function konfirmasiKumpul() {
+  kumpulkan(false);
+} 
+
+function kumpulkan(otomatis) {
+  if (sudahKumpul) return;
+
+  sudahKumpul = true;
+  clearInterval(interval);
+
+  let benar = 0;
+  let detail = {};
+
+  soal.forEach(s=>{
+    const pilihan = jawaban[s.id];
+    const benarSalah = pilihan === s.a;
+
+    if (benarSalah) benar++;
+
+    if (!detail[s.topik]) {
+      detail[s.topik] = {benar:0,total:0};
+    }
+
+    detail[s.topik].total++;
+    if (benarSalah) detail[s.topik].benar++;
+  });
+
+  const nilai = Math.round((benar/soal.length)*100);
+  const status = diskualifikasi ? "DISKUALIFIKASI" : "SELESAI";
+
+  const data = {
+    nama:identitas.nama,
+    kelas:identitas.kelas,
+    absen:identitas.absen,
+    benar,
+    total:soal.length,
+    nilai,
+    status,
+    pelanggaran,
+    detail,
+    tanggal:new Date().toLocaleString("id-ID")
+  };
+
+  let semua = JSON.parse(localStorage.getItem("hasilKomjar") || "[]");
+  semua.push(data);
+  localStorage.setItem("hasilKomjar",JSON.stringify(semua));
+
+  tampil("result");
+
+  let rincian = "";
+  Object.keys(detail).forEach(topik=>{
+    const d = detail[topik];
+    rincian += `
+      <p>${aman(topik)}: ${d.benar}/${d.total} benar</p>
+    `;
+  });
+
+  document.getElementById("hasil").innerHTML = `
+    <div class="status">
+      <h3>${aman(data.nama)}</h3>
+      <p>Kelas: ${aman(data.kelas)}</p>
+      <p>Nomor absen: ${aman(data.absen)}</p>
+      <h1>${nilai}</h1>
+      <b>Status: ${status}</b>
+      <p>Jawaban benar: ${benar} dari 30 soal</p>
+      <p>Pelanggaran: ${pelanggaran}</p>
+      <hr>
+      <b>Rincian Materi</b>
+      ${rincian}
+    </div>
+    <p class="small">Hasil tersimpan di browser/perangkat ini.</p>
+  `;
+}
+
+function kembaliAwal() {
+  clearInterval(interval);
+  tampil("home");
+}
+
+function bukaGuru() {
+  const pin = prompt("Masukkan PIN guru:");
+  if (pin !== PIN_GURU) {
+    alert("PIN guru salah!");
+    return;
+  }
+  tampil("teacher");
+  tampilDashboard();
+}
+
+function tampilDashboard() {
+  const semua = JSON.parse(localStorage.getItem("hasilKomjar") || "[]");
+  const total = semua.length;
+
+  const rata = total
+    ? (semua.reduce((a,b)=>a+b.nilai,0)/total).toFixed(1)
+    : 0;
+
+  const disk = semua.filter(x=>x.status==="DISKUALIFIKASI").length;
+
+  document.getElementById("statistik").innerHTML = `
+    <p>Jumlah peserta: <b>${total}</b></p>
+    <p>Rata-rata nilai: <b>${rata}</b></p>
+    <p>Diskualifikasi: <b>${disk}</b></p>
+  `;
+
+  const tbody = document.getElementById("tabelHasil");
+
+  if (!total) {
+    tbody.innerHTML = `<tr><td colspan="7">Belum ada hasil ujian.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = semua.map((x,i)=>`
+    <tr>
+      <td>${i+1}</td>
+      <td>${aman(x.nama)}</td>
+      <td>${aman(x.kelas)}</td>
+      <td>${aman(x.absen)}</td>
+      <td>${x.nilai}</td>
+      <td>${aman(x.status)}</td>
+      <td>${x.pelanggaran}</td>
+    </tr>
+  `).join("");
+}
+
+function eksporCSV() {
+  const semua = JSON.parse(localStorage.getItem("hasilKomjar") || "[]");
+
+  if (!semua.length) {
+    alert("Belum ada data untuk diunduh.");
+    return;
+  }
+
+  const baris = [
+    ["Nama","Kelas","Absen","Benar","Total","Nilai","Status","Pelanggaran","Tanggal"]
+  ];
+
+  semua.forEach(x=>{
+    baris.push([
+      x.nama,x.kelas,x.absen,x.benar,x.total,
+      x.nilai,x.status,x.pelanggaran,x.tanggal
+    ]);
+  });
+
+  const csv = baris.map(row=>
+    row.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(",")
+  ).join("\n");
+
+  const blob = new Blob(["\uFEFF"+csv],{
+    type:"text/csv;charset=utf-8;"
+  });
+
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "Hasil_Pretest_Komjar_X.csv";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function hapusData() {
+  if (!confirm("Yakin ingin menghapus seluruh hasil ujian di perangkat ini?")) return;
+
+  localStorage.removeItem("hasilKomjar");
+  tampilDashboard();
+}
+</script>
+
+</body>
+</html>
